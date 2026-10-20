@@ -15,6 +15,7 @@
 //   widget    'breathing' | 'grounding'
 //   carry     'goals' | 'questions'  shows what was noted earlier in the session
 //   offer     { pathway, label }  button to jump to another pathway
+//   info      { title, text }  a highlighted box of extra information
 //   clinician text shown in a quiet box, worded so it is fine for the patient to see
 
 window.CONTENT = {
@@ -607,6 +608,10 @@ window.CONTENT = {
       title: "My keeping well plan",
       icon: "🌱",
       intro: "Pick one part of your plan to work on today. If you already have a plan from a course or the Recovery College, it helps to have it with you.",
+      introLink: {
+        label: "Courses at the Lincolnshire Wellbeing and Recovery College",
+        url: "https://www.lpft.nhs.uk/recovery-college",
+      },
       topics: [
         {
           id: "well",
@@ -693,6 +698,17 @@ window.CONTENT = {
           text: "How Are You Lincolnshire lists over 600 local groups, services and courses. Try searching for your area and what you chose, for example a Wellbeing Hub or Night Light Café.",
           links: [{ label: "How Are You Lincolnshire (H.A.Y)", url: "https://haylincolnshire.co.uk/" }],
           searchHints: "hay-wants",
+        },
+        {
+          title: "Lincolnshire Wellbeing and Recovery College",
+          text: "The Recovery College runs free courses about mental health and wellbeing, on topics like sleep, anxiety and keeping well. They are open to anyone aged 16 or over in Lincolnshire, with no referral needed, online on Teams or in person around the county.",
+          links: [{ label: "Lincolnshire Wellbeing and Recovery College", url: "https://www.lpft.nhs.uk/recovery-college" }],
+          info: {
+            title: "How to book",
+            text: "Register online, phone 01522 309333, or email lpft.recovery.college@nhs.net. Booking is essential, and you can bring someone with you if they book too.",
+          },
+          prompts: ["Is there a course that interests you?", "Would you like to try one while you're here, or after you go home?"],
+          note: { key: "rc-courses", label: "Recovery College courses I'd like to try" },
         },
         {
           title: "Pick one or two",

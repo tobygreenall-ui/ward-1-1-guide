@@ -312,6 +312,7 @@
       if (s.goals) parts.push(renderGoals());
       if (s.links) parts.push(renderLinks(s.links));
       if (s.searchHints) parts.push(renderSearchHints(s.searchHints));
+      if (s.info) parts.push(`<div class="info-box"><h2 class="q small">${esc(s.info.title)}</h2><p>${esc(s.info.text)}</p></div>`);
       if (s.choices) parts.push(renderChoices(s.choices));
       if (s.scale) parts.push(renderScale(s.scale));
       if (s.workbooks) parts.push(renderWorkbooks(s.workbooks));
