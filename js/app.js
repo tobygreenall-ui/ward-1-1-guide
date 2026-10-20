@@ -366,12 +366,14 @@
             <textarea data-input="nextTime" rows="3">${esc(state.nextTime)}</textarea>
           </label>
           <h2 class="q">Summary</h2>
-          <p class="quiet">Copy this into the notes, or print it for you to keep. It has no name or personal details on it.</p>
+          <p class="quiet">Copy this into the notes, email it, or print it for you to keep. It has no name or personal details on it.</p>
+          <p class="quiet small-print">Email opens your email app with the summary filled in; nothing is sent until you press send there. Follow Trust policy on where you send it, for example an nhs.net address.</p>
           <div class="summary" id="summary">${renderSummaryHtml()}</div>
           <div class="actions spread no-print">
             <button class="secondary-btn" data-action="menu">Back to choices</button>
             <span class="actions">
               <button class="secondary-btn" data-action="copy">Copy summary</button>
+              <button class="secondary-btn" data-action="email">Email summary</button>
               <button class="secondary-btn" data-action="print">Print</button>
               <button class="danger-btn" data-action="clear">End and clear session</button>
             </span>
@@ -643,6 +645,38 @@
     }
   }
 
+  // Opens the device's email app with the summary as the message body. Some
+  // email apps cut off long links, so the full text is also copied to the
+  // clipboard and a long body is shortened with a note to paste it instead.
+  const MAILTO_MAX_BODY = 1800;
+
+  function emailSummary(btn) {
+    const text = summaryText();
+    let body = text;
+    if (body.length > MAILTO_MAX_BODY) {
+      body = body.slice(0, MAILTO_MAX_BODY) + "\n\n[Summary shortened. The full summary has been copied: paste it here to replace this text.]";
+    }
+    const open = () => {
+      window.location.href = "mailto:?subject=" + encodeURIComponent("1-1 session summary") + "&body=" + encodeURIComponent(body);
+      btn.textContent = "Email app opened";
+      setTimeout(() => (btn.textContent = "Email summary"), 4000);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(open, () => copyThenOpen(text, open));
+    } else {
+      copyThenOpen(text, open);
+    }
+  }
+
+  function copyThenOpen(text, open) {
+    try {
+      fallbackCopy(text, () => {});
+    } catch (e) {
+      // Copying is a convenience here; open the email app either way.
+    }
+    open();
+  }
+
   function fallbackCopy(text, done) {
     const ta = document.createElement("textarea");
     ta.value = text;
@@ -750,6 +784,9 @@
     },
     copy(el) {
       copySummary(el);
+    },
+    email(el) {
+      emailSummary(el);
     },
     print() {
       window.print();

@@ -37,6 +37,7 @@ h1:focus { outline: none; }
 .quiet { color: var(--quiet); }
 .eyebrow { color: var(--accent); font-weight: 600; margin: 0 0 8px; font-size: 0.9rem; }
 .progress { color: var(--quiet); font-weight: 400; margin-left: 8px; }
+.small-print { font-size: 0.8rem; margin-top: -4px; }
 .credit { color: var(--quiet); font-size: 0.75rem; margin-top: 24px; }
 .pre { white-space: pre-wrap; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
