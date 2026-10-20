@@ -272,6 +272,7 @@
     topics() {
       const p = pathwayById(state.pathway);
       const items = p.topics
+        .filter((t) => !t.hidden)
         .map((t) => {
           const done = t.steps.some((s) => s.note && hasValue(state.answers[s.note.key]));
           return `
@@ -305,6 +306,12 @@
       parts.push(`<h1>${esc(s.title)}</h1>`);
       if (s.text) parts.push(`<p class="lead">${esc(s.text)}</p>`);
       if (s.carry) parts.push(renderCarry(s.carry));
+      if (s.info)
+        parts.push(
+          `<div class="info-box"><h2 class="q small">${esc(s.info.title)}</h2>${s.info.text ? `<p>${esc(s.info.text)}</p>` : ""}${
+            s.info.list ? `<ul>${s.info.list.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>` : ""
+          }</div>`
+        );
       if (s.prompts) parts.push(`<ul class="prompts">${s.prompts.map((q) => `<li>${esc(q)}</li>`).join("")}</ul>`);
       if (s.talk) parts.push(`<div class="talk-space" aria-hidden="true">🌿</div>`);
       if (s.widget === "breathing") parts.push(renderBreathing());
@@ -312,7 +319,6 @@
       if (s.goals) parts.push(renderGoals());
       if (s.links) parts.push(renderLinks(s.links));
       if (s.searchHints) parts.push(renderSearchHints(s.searchHints));
-      if (s.info) parts.push(`<div class="info-box"><h2 class="q small">${esc(s.info.title)}</h2><p>${esc(s.info.text)}</p></div>`);
       if (s.choices) parts.push(renderChoices(s.choices));
       if (s.scale) parts.push(renderScale(s.scale));
       if (s.workbooks) parts.push(renderWorkbooks(s.workbooks));
@@ -320,6 +326,12 @@
       if (s.note) parts.push(renderNote(s.note));
       if (s.crisis) parts.push(renderCrisis());
       if (s.review) parts.push(renderReview());
+      if (s.branch)
+        parts.push(
+          `<div class="tiles small">${s.branch
+            .map((b) => `<button class="tile" data-action="topic" data-id="${esc(b.topic)}"><span class="tile-text">${esc(b.label)}</span></button>`)
+            .join("")}</div>`
+        );
       if (s.offer && (!s.offer.pathway || s.offer.pathway !== state.pathway))
         parts.push(`<div class="offer"><button class="secondary-btn" data-action="open" data-id="${s.offer.pathway}">${esc(s.offer.label)} →</button></div>`);
       if (s.softOffer)

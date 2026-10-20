@@ -15,7 +15,10 @@
 //   widget    'breathing' | 'grounding'
 //   carry     'goals' | 'questions'  shows what was noted earlier in the session
 //   offer     { pathway, label }  button to jump to another pathway
-//   info      { title, text }  a highlighted box of extra information
+//   info      { title, text or list }  a highlighted box of extra information
+//   branch    [{ label, topic }]  buttons that move to another topic in the same pathway
+//
+// A topic with `hidden: true` is only reached through a branch, not the topic list.
 //   clinician text shown in a quiet box, worded so it is fine for the patient to see
 
 window.CONTENT = {
@@ -390,13 +393,66 @@ window.CONTENT = {
         },
         {
           id: "reqol",
-          title: "Talk about my ReQoL answers",
+          title: "My ReQoL",
           steps: [
             {
-              title: "Your ReQoL answers",
-              text: "Have your ReQoL-10 from Rio to hand. We'll talk about your answers rather than fill it in again.",
-              prompts: ["Which answers surprised you, or felt most important?"],
+              title: "Have you completed your ReQoL this week?",
+              text: "ReQoL-10 is a short questionnaire about how things have been for you over the last week. It's completed on Rio.",
+              branch: [
+                { label: "Yes, let's talk about my answers", topic: "reqol-discuss" },
+                { label: "Not yet", topic: "reqol-complete" },
+              ],
+            },
+          ],
+        },
+        {
+          id: "reqol-complete",
+          title: "Completing my ReQoL",
+          hidden: true,
+          steps: [
+            {
+              title: "Completing your ReQoL",
+              text: "ReQoL helps you and the team see how things are going and what to work on together. It takes a few minutes and you complete it on Rio with staff.",
+              info: {
+                title: "Things to keep in mind",
+                list: [
+                  "It's about the last week, not just how you feel today.",
+                  "There are no right or wrong answers. Choose what has been true for you most of the time.",
+                  "Some statements are about good things and some about difficult things, so read each one carefully.",
+                  "The last question is about your physical health, such as pain, mobility, looking after yourself or feeling unwell.",
+                  "It's fine to ask what a question means, or to take a break.",
+                  "Some questions are about difficult feelings, including whether life feels worth living. If any feel hard to answer, tell us and we can talk about it.",
+                  "Your answers will be talked through with you and used to help plan your care.",
+                ],
+              },
+              prompts: ["Would you like to complete it now, together?", "Is there anything you'd like to ask before you start?"],
+            },
+            {
+              title: "Once it's done",
+              text: "When you've finished on Rio, we can look at your answers together.",
+              branch: [{ label: "I've completed it, let's talk about my answers", topic: "reqol-discuss" }],
+            },
+          ],
+        },
+        {
+          id: "reqol-discuss",
+          title: "Talking about my ReQoL answers",
+          hidden: true,
+          steps: [
+            {
+              title: "Looking at your answers",
+              text: "Have your ReQoL-10 open on Rio so you can look at it together.",
+              prompts: [
+                "Which answers stand out to you?",
+                "Did anything surprise you?",
+                "If you've completed it before, what's changed since last time?",
+              ],
               note: { key: "reqol-important", label: "What stood out to me" },
+            },
+            {
+              title: "What's going well?",
+              prompts: ["Which answers show things going well, even a little?", "What's helping with those?"],
+              note: { key: "reqol-strengths", label: "What's going well and what's helping" },
             },
             {
               title: "What would you most like to be better?",
@@ -405,24 +461,31 @@ window.CONTENT = {
                 label: "Areas of my life",
                 multi: true,
                 options: [
-                  "Doing everyday things",
-                  "Hope",
-                  "Trusting and feeling close to others",
-                  "How I see myself",
-                  "Feeling happy and enjoying things",
+                  "Getting started with everyday tasks",
+                  "Trusting others",
                   "Coping",
-                  "My physical health",
+                  "Doing the things I want to do",
+                  "Feeling happy",
+                  "Enjoying what I do",
+                  "Feeling hopeful about the future",
+                  "Feeling lonely",
+                  "Confidence in myself",
+                  "Physical health",
                 ],
               },
             },
             {
-              title: "What might help?",
-              prompts: ["What might help with that while you're here?", "Shall we add that to your care plan?"],
-              note: { key: "reqol-help", label: "What might help" },
+              title: "Using this in your care plan",
+              prompts: [
+                "For the area that matters most, what would a small improvement look like?",
+                "What could you do, what could staff do, and what could family or friends do?",
+                "Is there a goal we could set and look at again next time you complete ReQoL?",
+              ],
+              note: { key: "reqol-help", label: "Ideas for my care plan" },
               offer: { pathway: "careplan", label: "Add this to my care plan" },
               softOffer: {
                 pathway: "safety",
-                text: "If things have felt very hard lately, we could make a safety plan together next.",
+                text: "If things have felt very hard lately, or life hasn't felt worth living, we could make a safety plan together next.",
                 label: "Make a safety plan together",
               },
             },
