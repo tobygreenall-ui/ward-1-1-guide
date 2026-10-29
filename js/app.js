@@ -41,6 +41,7 @@
       topic: null,
       step: 0,
       nextTime: "",
+      toolFeedback: "",
     };
   }
 
@@ -109,7 +110,7 @@
       </div>
       <div class="topbar-right">
         ${time ? `<span class="timer" aria-live="off">${esc(time)}</span>` : ""}
-        <button class="ghost-btn" data-action="pause">Pause</button>
+        <button class="ghost-btn" data-action="pause">Put screen aside</button>
         <button class="ghost-btn" data-action="end">Finish</button>
       </div>`;
   }
@@ -121,7 +122,10 @@
       const left = minutesLeft();
       if (!state.halfwayShown && left != null && left <= state.duration / 2 && state.screen === "step") {
         state.halfwayShown = true;
-        toast("We're about halfway. Are we still talking about what matters most to you?");
+        toast("We're about halfway. Is this helping, or would you rather put the screen aside and just talk?", [
+          { label: "Carry on" },
+          { label: "Put screen aside", action: "pause" },
+        ]);
       }
     }, 15000);
   }
@@ -131,12 +135,15 @@
     tick = null;
   }
 
-  function toast(text) {
+  function toast(text, buttons) {
     const el = document.createElement("div");
     el.className = "toast";
     el.setAttribute("role", "status");
-    el.innerHTML = `<span>${esc(text)}</span><button class="link-btn" aria-label="Dismiss">OK</button>`;
-    el.querySelector("button").addEventListener("click", () => el.remove());
+    const btns = buttons || [{ label: "OK" }];
+    el.innerHTML = `<span>${esc(text)}</span>${btns
+      .map((b) => `<button class="link-btn" ${b.action ? `data-action="${esc(b.action)}"` : ""}>${esc(b.label)}</button>`)
+      .join("")}`;
+    el.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => el.remove()));
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 20000);
   }
@@ -195,6 +202,7 @@
           <p class="lead">We can use it however is most helpful to you.</p>
           <p class="quiet">Nothing you type here is saved. It all clears when we finish.</p>
           <button class="primary-btn big" data-action="settle">Start</button>
+          <p><button class="link-btn" data-action="using-well">For staff: using this well</button></p>
         </section>`;
     },
 
@@ -312,7 +320,7 @@
             s.info.list ? `<ul>${s.info.list.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>` : ""
           }</div>`
         );
-      if (s.prompts) parts.push(`<ul class="prompts">${s.prompts.map((q) => `<li>${esc(q)}</li>`).join("")}</ul>`);
+      if (s.prompts) parts.push(renderPrompts(s.prompts, state.step === 0));
       if (s.talk) parts.push(`<div class="talk-space" aria-hidden="true">🌿</div>`);
       if (s.widget === "breathing") parts.push(renderBreathing());
       if (s.widget === "grounding") parts.push(renderGrounding());
@@ -378,6 +386,13 @@
             <span class="note-label">Next steps</span>
             <textarea data-input="nextTime" rows="3">${esc(state.nextTime)}</textarea>
           </label>
+          <h2 class="q">How was using this today?</h2>
+          <div class="chips">${C.toolFeedback
+            .map(
+              (f) =>
+                `<button class="chip ${state.toolFeedback === f ? "selected" : ""}" data-action="tool-feedback" data-value="${esc(f)}" aria-pressed="${state.toolFeedback === f}">${esc(f)}</button>`
+            )
+            .join("")}</div>
           <h2 class="q">Summary</h2>
           <p class="quiet">Copy this into the notes, email it, or print it for you to keep. It has no name or personal details on it.</p>
           <p class="quiet small-print">Email opens your email app with the summary filled in; nothing is sent until you press send there. Follow Trust policy on where you send it, for example an nhs.net address.</p>
@@ -406,13 +421,32 @@
 
   // ---------- step parts ----------
 
+  // One opening question is shown; the rest stay folded away so the screen
+  // offers a starting point rather than a list to read through.
+  function renderPrompts(prompts, firstStep) {
+    const [first, ...rest] = prompts;
+    return `
+      ${firstStep ? `<p class="quiet small-print">A starting point. Put it in your own words, or follow wherever the conversation goes.</p>` : ""}
+      <ul class="prompts"><li>${esc(first)}</li></ul>
+      ${
+        rest.length
+          ? `<details class="more-ideas"><summary>More ideas, if they help</summary><ul>${rest.map((q) => `<li>${esc(q)}</li>`).join("")}</ul></details>`
+          : ""
+      }`;
+  }
+
+  // Note boxes start closed so writing doesn't become the task; one that
+  // already has words in it stays open.
   function renderNote(n) {
     const v = state.answers[n.key] || "";
     return `
-      <label class="note">
-        <span class="note-label">${esc(n.label)}</span>
-        <textarea data-note="${esc(n.key)}" data-label="${esc(n.label)}" rows="4" placeholder="In your own words (optional)">${esc(v)}</textarea>
-      </label>`;
+      <details class="note-fold" ${hasValue(v) ? "open" : ""}>
+        <summary>Write something down together</summary>
+        <label class="note">
+          <span class="note-label">${esc(n.label)}</span>
+          <textarea data-note="${esc(n.key)}" data-label="${esc(n.label)}" rows="4" placeholder="In your own words (optional)">${esc(v)}</textarea>
+        </label>
+      </details>`;
   }
 
   function renderChoices(c) {
@@ -628,6 +662,7 @@
       else out.push(`<dl>${s.items.map((i) => `<dt>${esc(i.label)}</dt><dd class="pre">${esc(i.value)}</dd>`).join("")}</dl>`);
     }
     if (hasValue(state.nextTime)) out.push(`<h3>Next steps</h3><p class="pre">${esc(state.nextTime)}</p>`);
+    if (hasValue(state.toolFeedback)) out.push(`<p><strong>Using the app today:</strong> ${esc(state.toolFeedback)}</p>`);
     return out.join("");
   }
 
@@ -642,6 +677,7 @@
       for (const i of s.items) lines.push(`${i.label}: ${i.value}`);
     }
     if (hasValue(state.nextTime)) lines.push("", "NEXT STEPS", state.nextTime);
+    if (hasValue(state.toolFeedback)) lines.push("", `Using the app today: ${state.toolFeedback}`);
     return lines.join("\n");
   }
 
@@ -783,6 +819,16 @@
     prev() {
       state.step = Math.max(state.step - 1, 0);
       render();
+    },
+    "tool-feedback"(el) {
+      state.toolFeedback = state.toolFeedback === el.dataset.value ? "" : el.dataset.value;
+      render();
+    },
+    "using-well"() {
+      openModal(`
+        <h2>Using this well</h2>
+        <ul class="using-well">${C.usingWell.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+        <div class="actions"><button class="primary-btn" data-action="close-modal">Got it</button></div>`);
     },
     pause() {
       pauseScreen.hidden = false;

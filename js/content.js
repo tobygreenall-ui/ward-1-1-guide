@@ -32,6 +32,19 @@ window.CONTENT = {
 
   durations: [10, 20, 30, 45],
 
+  // Shown from the welcome screen for staff before or during a session.
+  usingWell: [
+    "The person matters more than the screen. Use the app to open a conversation, then follow where it goes.",
+    "The questions are ideas, not a script. Say them in your own words, or skip them.",
+    "Let the patient choose what to talk about, and hand them the device if they'd like to lead.",
+    "Put the screen aside whenever it's getting in the way. Pauses and silence are fine.",
+    "Reflect back what you hear before moving on to the next question.",
+    "There's no need to finish a pathway or write anything down. One good conversation is enough.",
+    "Every so often, ask: \"Is this helping, or would you rather just talk?\"",
+  ],
+
+  toolFeedback: ["It helped", "It was OK", "It got in the way"],
+
   crisis: [
     { label: "Lincolnshire mental health crisis line", detail: "0303 123 4000, 24 hours a day, every day" },
     { label: "NHS 111", detail: "Choose option 2 for mental health" },
