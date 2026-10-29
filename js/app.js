@@ -94,6 +94,7 @@
   function renderTopbar() {
     if (state.screen === "welcome" || state.screen === "cleared") {
       topbar.hidden = true;
+      topbar.innerHTML = "";
       return;
     }
     topbar.hidden = false;
@@ -384,7 +385,7 @@
           </ul>
           <label class="note">
             <span class="note-label">Next steps</span>
-            <textarea data-input="nextTime" rows="3">${esc(state.nextTime)}</textarea>
+            <textarea autocomplete="off" spellcheck="false" autocorrect="off" data-gramm="false" data-enable-grammarly="false" data-input="nextTime" rows="3">${esc(state.nextTime)}</textarea>
           </label>
           <h2 class="q">How was using this today?</h2>
           <div class="chips">${C.toolFeedback
@@ -435,6 +436,10 @@
       }`;
   }
 
+  // Text boxes turn off spell-check, autocorrect, autofill and grammar add-ons:
+  // some of these (for example Chrome's enhanced spell check, Microsoft Editor,
+  // Grammarly) send typed words to a cloud service to check them.
+
   // Note boxes start closed so writing doesn't become the task; one that
   // already has words in it stays open.
   function renderNote(n) {
@@ -444,7 +449,7 @@
         <summary>Write something down together</summary>
         <label class="note">
           <span class="note-label">${esc(n.label)}</span>
-          <textarea data-note="${esc(n.key)}" data-label="${esc(n.label)}" rows="4" placeholder="In your own words (optional)">${esc(v)}</textarea>
+          <textarea autocomplete="off" spellcheck="false" autocorrect="off" data-gramm="false" data-enable-grammarly="false" data-note="${esc(n.key)}" data-label="${esc(n.label)}" rows="4" placeholder="In your own words (optional)">${esc(v)}</textarea>
         </label>
       </details>`;
   }
@@ -483,7 +488,7 @@
         <div class="goal">
           <label class="note">
             <span class="note-label">Goal ${i + 1}${i > 0 ? " (optional)" : ""}</span>
-            <input type="text" data-goal="${i}" value="${esc(g.text)}" placeholder="For example: sleep through most nights">
+            <input autocomplete="off" spellcheck="false" autocorrect="off" data-gramm="false" data-enable-grammarly="false" type="text" data-goal="${i}" value="${esc(g.text)}" placeholder="For example: sleep through most nights">
           </label>
           <label class="scale">
             <span class="note-label">Where are you now with this goal? <strong class="goal-value" id="goal-value-${i}">${g.rating == null ? "Not rated" : g.rating + " out of 10"}</strong></span>
